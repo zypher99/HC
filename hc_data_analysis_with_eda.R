@@ -103,7 +103,7 @@ write.csv(hc_kor, "hc_eda_kor.csv")
 # transforming variables
 ################################################################################
 
-names <- c("Delivery", "Payment", "Sex", "default","CB_Class", "SP_Class", "Previous_Contracts_YN")
+names <- c("Payment", "Sex", "default","CB_Class", "SP_Class", "Previous_Contracts_YN")
 hc[,names] <- lapply(hc[,names] , factor)
 
 names <- c("Age", "Price", "Monthly_Install", "CB", "SP", "Previous_Contracts", "Periods")
@@ -121,7 +121,7 @@ hc[,names] <- lapply(hc[,names] , as.numeric)
 set.seed(2020)
 
 modeling_set_1 <- hc[hc$default=="Yes",]
-modeling_set_2 <- sample_n(hc[hc$default=="No",], 350)
+modeling_set_2 <- sample_n(hc[hc$default=="No",], 500)
 
 modeling_set <- rbind(modeling_set_1, modeling_set_2)  
 
@@ -133,7 +133,7 @@ names(order_case) <- c("id","Order_Number")
 # Model Version
 ################################################################################
 
-modeling_set_v1 <- modeling_set[, -c(1, 4, 5, 7, 9, 11, 14, 15, 17)]
+modeling_set_v1 <- modeling_set[, -c(1, 4, 5, 8, 10, 13, 14, 15, 17)]
 
 
 write.csv(hc, "hc_v1.csv")
@@ -211,7 +211,7 @@ plot(density(rf.pred$Yes))
 
 threshold <- 0.5
 pred <- factor(ifelse(rf.pred[,"Yes"] > threshold, "Yes", "No") )
-cfm <- caret::confusionMatrix(pred, testing$default)
+caret::confusionMatrix(pred, testing$default)
 
 
 ################################################################################
