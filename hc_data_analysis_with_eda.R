@@ -32,38 +32,28 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 hc_data <- read.csv("HNC_DATA_v4.csv", fileEncoding = 'euc-kr', header = T, na.strings=c("-999", "NA", ""))
 
-#hc_data <- hc_data[,-1]
-
 ### select Useful Columns
 
-hc <- hc_data[,c(1, 67, 68, 69, 14, 33,66, 24, 71, 25, 72, 70, 62, 36, 39 )]
-names(hc) <- c("Order_Number", "Sex", "Age", "Age_Group", "Price", "Monthly_Install", "Delivery", "CB", "CB_Class", "SP","SP_Class", "Payment", "Previous_Contracts", "Periods","Overdue")
+hc <- hc_data[,c(1, 67, 68, 69, 14, 33, 24, 71, 25, 72, 70, 62, 36, 39 )]
+names(hc) <- c("Order_Number", "Sex", "Age", "Age_Group", "Price", "Monthly_Install", "CB", "CB_Class", "SP","SP_Class", "Payment", "Previous_Contracts", "Periods","Overdue")
 
+### Monthly Install Binning
 
-#hc <- hc_data[,c(2, 43, 44, 45, 47, 46, 12, 19, 29, 31, 33)]
-#names(hc) <- c("Order_Number", "Delivery", "Payment", "Age", "Sex", "Age_bin","Price", "Credit_CB", "Periods", "Overdue", "Monthly_Install")
+hc$Monthly_Group[hc$Monthly_Install <= 89700] <- "Group 1"
+hc$Monthly_Group[hc$Monthly_Install > 89700 & hc$Monthly_Install <= 176700 ] <- "Group 2"
+hc$Monthly_Group[hc$Monthly_Install > 176700] <- "Group 3"
 
-### shipment
-hc$Delivery <- ifelse(hc$Delivery=="Shipment 인수후 설치", "Shipment", "Install")
+#plot(density(hc$Monthly_Install))
+
 
 ### Payment
+
 #hc$Payment <- ifelse(hc$Payment==0, "CMS", "Credit Card")
 
 ### Payment
 hc$Sex <- ifelse(hc$Sex=="Man", "Male", "Female")
 
 
-################################################################################
-# EDA
-################################################################################
-
-#df = subset(hc, select = -c(4, 9, 11) )
-
-#colnames(df) <- c("주문번호", "성별", "연령", "가격", "월납입액", "배송방법", "CB", "SP", "결재수단", "과거거래경험", "연체개월")
-
-#create_report(df)
-
-#dlookr::plot_outlier(hc, Overdue)
 
 ################################################################################
 # Defining Target Variable 1 : Overdue >= 1, periods >= 3, CB & SP available 
@@ -93,35 +83,21 @@ hc <- hc_cb_sp
 
 write.csv(hc, "hc_eda_1.csv")
 
+write.csv(hc, "hc_data.csv")
+
 ################################################################################
-# Defining Target Variable 2 : Overdue >= 2, Periods >= 6 
+# EDA
 ################################################################################
 
-### remove overdue = 1
-hc <- hc[hc$Overdue==0 | hc$Overdue>1,]
+hc_kor <- hc
 
-### add Target Variable
-hc$default <- ifelse(hc$Overdue>2, "Yes", "No")
+colnames(hc_kor) <- c("주문번호", "성별", "연령", "연령대", "가격", "월납입액", "CB", "CB그룹",  "SP", "SP그룹", "결재수단", "과거거래기록", "진행개월", "연체개월", "월납입액그룹", "연체여부", "과거거래유무")
 
-### add CB Variable
-#hc$CB <- ifelse(hc$Credit_CB==1 | hc$Credit_CB==2 | hc$Credit_CB==3, "Class 1", "Class 2")
+#create_report(df)
 
-hc$Previous_Contracts_YN <- ifelse(hc$Previous_Contracts>0, "Yes", "No")
+#dlookr::plot_outlier(hc, Overdue)
 
-### Observed Periods is 6 months
-hc <- hc[hc$Periods>5,]
-
-
-# Remove NA in SP, CB
-
-hc_cb_sp <- hc[!is.na(hc$SP) & !is.na(hc$CB),]
-
-hc <- hc_cb_sp
-
-write.csv(hc, "hc_eda_2.csv")
-
-
-
+write.csv(hc_kor, "hc_eda_kor.csv")
 
 ################################################################################
 # transforming variables
@@ -235,7 +211,7 @@ plot(density(rf.pred$Yes))
 
 threshold <- 0.5
 pred <- factor(ifelse(rf.pred[,"Yes"] > threshold, "Yes", "No") )
-caret::confusionMatrix(pred, testing$default)
+cfm <- caret::confusionMatrix(pred, testing$default)
 
 
 ################################################################################
@@ -271,7 +247,6 @@ plot(ale_payment)
 
 ### Partial Dependence & Individual Conditional Expectation plots (ICE)
 
-hist(hc$Monthly_Install)
 
 predictor_2 <- iml::Predictor$new(rf, data = testing.X, y = testing$default, class = "Yes", type = "prob")
 
