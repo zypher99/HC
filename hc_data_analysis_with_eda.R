@@ -53,7 +53,7 @@ hc$Monthly_Group[hc$Monthly_Install > 176700] <- "Group 3"
 ### Payment
 hc$Sex <- ifelse(hc$Sex=="Man", "Male", "Female")
 
-
+write.csv(hc, "hc_data_prep.csv")
 
 ################################################################################
 # Defining Target Variable 1 : Overdue >= 1, periods >= 3, CB & SP available 
