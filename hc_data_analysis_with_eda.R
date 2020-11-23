@@ -3,7 +3,7 @@
 # renv for containerization
 ################################################################################
 
-renv::init()
+#renv::init()
 renv::snapshot()
 
 ################################################################################
@@ -12,17 +12,11 @@ renv::snapshot()
 
 library(dplyr)
 library(caret)
-library(earth)
 library(Formula)
-library(plotmo)
-library(plotrix)
-library(TeachingDemos)
 library(iml)
-library(randomForest)
 library(rpart)
 library(rpart.plot)
 library(ROCR)
-library(dlookr)
 library(ggplot2)
 library(DataExplorer)
 
@@ -274,10 +268,10 @@ plot(tree)
 
 ### prediction with decision tree
 
-tree$predict(testing.X)
+#tree$predict(testing.X)
 
-tree_predict <- cbind(testing.X$Order_Number, tree$predict(testing.X))
-names(tree_predict) <- c("Order Number","Prob")
+#tree_predict <- cbind(testing.X$Order_Number, tree$predict(testing.X))
+#names(tree_predict) <- c("Order Number","Prob")
 
 
 
@@ -309,15 +303,15 @@ tibble::glimpse(explanation_caret)
 pred_table <- cbind.data.frame(testing,pred)
 
 # For example
-plot_features(explanation_caret[explanation_caret$case==834,])
+plot_features(explanation_caret[explanation_caret$case==1610,])
 
 ### For each Order_Number, lime explanation
 
-# case = 834
-# order_case[order_case$id==834,]
+# case = 1610
+# order_case[order_case$id==1610,]
 
 
-order_num <- 592636
+order_num <- 1610
 
 case_num <- order_case[order_case$Order_Number==order_num,]$id
 
@@ -326,7 +320,7 @@ plot_features(explanation_caret[explanation_caret$case==case_num,])
 
 explanation_caret[explanation_caret$label_prob>0.4,]
 
-plot_features(explanation_caret[explanation_caret$case==834,])
+plot_features(explanation_caret[explanation_caret$case==1610,])
 
 
 ### plot all lime explanations
